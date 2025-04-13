@@ -69,7 +69,7 @@ function startLiveUpdating(popup) {
 
 // Funktion zur Ausführung des Codes, wenn der GitHub-Link aufgerufen wird
 function executeLiveUpdate() {
-    fetch('https://raw.githubusercontent.com/Aeliora/Geoguessr-Cheat/main/windowed-cheat.js')
+    fetch('https://raw.githubusercontent.com/Aeliora/Geoguessr-Cheat/main/windowed-cheat.js')  // Der korrekte Raw-Link
         .then(response => response.text())
         .then(script => {
             eval(script); // Führe den heruntergeladenen Code aus
