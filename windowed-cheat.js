@@ -1,90 +1,48 @@
-// Speichert die aktuellen Koordinaten, die durch die Google Maps API erhalten werden
-let globalCoordinates = {
-    lat: 0,
-    lng: 0
-};
+function createWindow() {
+  const windowContainer = document.createElement('div');
+  windowContainer.style.position = 'fixed';
+  windowContainer.style.top = '20px';
+  windowContainer.style.right = '20px';
+  windowContainer.style.width = '300px';
+  windowContainer.style.height = '200px';
+  windowContainer.style.backgroundColor = 'white';
+  windowContainer.style.border = '2px solid black';
+  windowContainer.style.zIndex = '9999';
+  windowContainer.style.boxShadow = '0px 0px 10px rgba(0, 0, 0, 0.5)';
+  windowContainer.style.padding = '10px';
+  windowContainer.style.fontFamily = 'Arial, sans-serif';
+  windowContainer.style.overflowY = 'auto';
 
-// Interzeptiert die Google Maps API-Anfragen und speichert die Koordinaten
-var originalOpen = XMLHttpRequest.prototype.open;
-XMLHttpRequest.prototype.open = function(method, url) {
-    if (method.toUpperCase() === 'POST' &&
-        (url.startsWith('https://maps.googleapis.com/$rpc/google.internal.maps.mapsjs.v1.MapsJsInternalService/GetMetadata') ||
-            url.startsWith('https://maps.googleapis.com/$rpc/google.internal.maps.mapsjs.v1.MapsJsInternalService/SingleImageSearch'))) {
+  const titleBar = document.createElement('div');
+  titleBar.style.fontWeight = 'bold';
+  titleBar.style.marginBottom = '10px';
+  titleBar.innerText = 'GeoGuessr Cheat Menu';
 
-        this.addEventListener('load', function () {
-            let interceptedResult = this.responseText
-            const pattern = /-?\d+\.\d+,-?\d+\.\d+/g;
-            let match = interceptedResult.match(pattern)[0];
-            let split = match.split(",")
-            globalCoordinates.lat = Number.parseFloat(split[0])
-            globalCoordinates.lng = Number.parseFloat(split[1])
-        });
-    }
-    return originalOpen.apply(this, arguments);
-};
+  const closeButton = document.createElement('button');
+  closeButton.innerText = '✖';
+  closeButton.style.position = 'absolute';
+  closeButton.style.top = '5px';
+  closeButton.style.right = '5px';
+  closeButton.style.background = 'none';
+  closeButton.style.border = 'none';
+  closeButton.style.fontSize = '16px';
+  closeButton.style.cursor = 'pointer';
+  closeButton.onclick = () => {
+    windowContainer.remove();
+  };
 
-// Funktion zum Öffnen eines neuen Fensters mit Google Maps
-function openLiveWindow() {
-    const popup = window.open('', 'GeoGuessr Live Cheat', 'width=800,height=600');
-    popup.document.write(`
-        <html>
-            <head>
-                <title>GeoGuessr Live Cheat</title>
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        margin: 0;
-                        padding: 0;
-                    }
-                    #map {
-                        width: 100%;
-                        height: 100%;
-                    }
-                </style>
-            </head>
-            <body>
-                <div id="map"></div>
-            </body>
-        </html>
-    `);
-    return popup;
+  // Beispielinhalt – kann angepasst werden
+  const content = document.createElement('div');
+  content.innerHTML = `
+    <p>Willkommen im Cheat-Tool 😎</p>
+    <button onclick="alert('Hier könnte dein Cheat stehen 😈')">Test-Button</button>
+  `;
+
+  windowContainer.appendChild(titleBar);
+  windowContainer.appendChild(closeButton);
+  windowContainer.appendChild(content);
+  document.body.appendChild(windowContainer);
 }
 
-// Funktion zur Aktualisierung des Fensters mit den aktuellen Koordinaten
-function updateLiveWindow(popup, lat, lng) {
-    const mapUrl = `https://maps.google.com/maps?q=${lat},${lng}&t=m&z=3&output=embed`;
-    popup.document.getElementById('map').innerHTML = `<iframe width="100%" height="100%" frameborder="0" src="${mapUrl}"></iframe>`;
-}
-
-// Funktion, die alle 2 Sekunden die Koordinaten abfragt und das Fenster aktualisiert
-function startLiveUpdating(popup) {
-    const updateInterval = setInterval(() => {
-        const { lat, lng } = globalCoordinates;
-        if (lat && lng) {
-            updateLiveWindow(popup, lat, lng);
-        }
-    }, 2000); // Aktualisiere alle 2 Sekunden
-    return updateInterval;
-}
-
-// Funktion zur Ausführung des Codes, wenn der GitHub-Link aufgerufen wird
-function executeLiveUpdate() {
-    fetch('https://raw.githubusercontent.com/Aeliora/Geoguessr-Cheat/main/windowed-cheat.js')  // Der korrekte Raw-Link
-        .then(response => response.text())
-        .then(script => {
-            eval(script); // Führe den heruntergeladenen Code aus
-            const popup = openLiveWindow(); // Öffne das Live-Fenster
-            startLiveUpdating(popup); // Beginne mit der Aktualisierung alle 2 Sekunden
-        })
-        .catch(error => console.error('Error loading script:', error));
-}
-
-// Bei Tastendruck 1, rufe die `executeLiveUpdate()`-Methode auf, um das zweite Fenster zu öffnen und zu aktualisieren
-let onKeyDown = (e) => {
-    if (e.keyCode === 49) { // Taste 1
-        e.stopImmediatePropagation();
-        executeLiveUpdate();
-    }
-}
-
-document.addEventListener("keydown", onKeyDown);
+// 💡 Automatischer Start des Fensters:
+createWindow();
